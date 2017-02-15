@@ -23,16 +23,16 @@
 // local network. Be sure they're a friend though :-)
 //
 
-var http  = require('http'),
-    url   = require('url'),
-    path  = require('path'),
-    fs    = require('fs'),
-    io = require('socket.io'),
-    sys   = require('sys'),
-    util  = require('util'),
-    spawn = require('child_process').spawn;
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const sys   = require('sys');
+const util  = require('util');
+const spawn = require('child_process').spawn;
+const sh = spawn('bash');
 
-var sh = spawn('bash');
+app.use(express.static('./'))
 
 sh.stdout.on('data', function(data) {
   io.emit('message', data);
@@ -46,32 +46,6 @@ sh.on('exit', function (code) {
   io.emit('exit', '** Shell exited: '+code+' **');
 });
 
-server = http.createServer(function(request, response){
-    var uri = url.parse(request.url).pathname;
-    var filename = path.join(process.cwd(), uri);
-    fs.exists(filename, function(exists) {
-      if (!exists) {
-        response.writeHead(404, {'Content-Type':'text/plain'});
-        response.end("Can''t find it...");
-      }
-      fs.readFile(filename, 'binary',function(err, file){
-        if (err) {
-          response.writeHead(500, {'Content-Type':'text/plain'});
-          response.end(err + "\n");
-          return;
-        }
-        response.writeHead(200);
-        response.write(file, 'binary');
-        response.end();
-
-      });
-    });
-  }
-);
-
-server.listen(8080);
-
-var io = io.listen(server);
 
 io.on('connection', function(client){
   client.on('message', function(data){
@@ -82,3 +56,6 @@ io.on('connection', function(client){
   });
 });
 
+server.listen(8080, function(){
+  console.log('server started');
+})
