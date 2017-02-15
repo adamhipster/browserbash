@@ -35,17 +35,15 @@ var http  = require('http'),
 var sh = spawn('bash');
 
 sh.stdout.on('data', function(data) {
-  console.log('stdout')
-  console.log(data)
-  io.emit('data', data);
+  io.emit('message', data);
 });
 
 sh.stderr.on('data', function(data) {
-  io.emit('data', data);
+  io.emit('message', data);
 });
 
 sh.on('exit', function (code) {
-  io.emit('data', '** Shell exited: '+code+' **');
+  io.emit('exit', '** Shell exited: '+code+' **');
 });
 
 server = http.createServer(function(request, response){

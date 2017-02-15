@@ -14,23 +14,14 @@
       socket.on('connect',function() {
         console.log('Client has connected to the server!');
       });
-      // socket.addEvent('message', function(data){
-
-      // })
-      socket.on('data', function(data){
-        console.log('data channel')
-        var buf = String.fromCharCode.apply(null, new Uint8Array(data));
-        console.log(buf)
+      socket.on('exit', function(data){
+        add_content(data);
       })
       socket.on('message', function(data) {
         console.log('data is')
         console.log(data)
-        add_content($.map(data, function(e,i) {
-          console.log('e and i')
-          console.log(e)
-          console.log(i)
-          return String.fromCharCode(e);
-        }).join(''));
+        var buf = String.fromCharCode.apply(null, new Uint8Array(data));
+        add_content(buf);
       });
       $(function(){
         $('form').submit(function(e){
